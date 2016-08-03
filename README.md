@@ -31,13 +31,13 @@ end
 The `paper_trail_audit_for` command adds functions for querying changes on each of the specified attributes. `paper_trail_audit_for [:value,:user]` adds the functions `value_changes` and `user_changes`. If there are some changes made we can query the change log for a specific field
 
 ```ruby
-@b = Bank.create(value: 100)
-@b.update(value: 10)
-@b.update(user: @some_user)
-@b.update(value: nil)
-@b.update(value: 40)
+b = Bank.create(value: 100)
+b.update(value: 10)
+b.update(user: some_user)
+b.update(value: nil)
+b.update(value: 40)
 
-@b.value_change
+b.value_change
 #[#<PaperTrailAudit::Change:0x007fbd359a1920 @old_value=nil, @new_value=100, @time=2016-08-03 02:39:16 UTC, @whodunnit=nil>,
 ##<PaperTrailAudit::Change:0x007fbd359a0fc0 @old_value=100, @new_value=10, @time=2016-08-03 02:39:16 UTC, @whodunnit=nil>,
 ##<PaperTrailAudit::Change:0x007fbd359a0688 @old_value=10, @new_value=nil, @time=2016-08-03 02:39:16 UTC, @whodunnit=nil>,
@@ -47,14 +47,14 @@ changes are reported as an array sorted in ascending chronological order. The ob
 
 Values of belongs_to relations can be tracked and the values will be reported as the models and not the ids
 ```ruby
-@u1 = User.create
-@u2 = User.create
-@b = Bank.create(value: 100)
-@b.update(user: @u1)
-@b.update(user: @u2)
-@b.update(user: nil)
+u1 = User.create
+u2 = User.create
+b = Bank.create(value: 100)
+b.update(user: u1)
+b.update(user: u2)
+b.update(user: nil)
 
-@b.user_changes
+b.user_changes
 #[#<PaperTrailAudit::Change:0x007fc824c6eff0
 # => @old_value=nil,
 # => @new_value=#<User id: 2, name: nil, created_at: "2016-08-03 02:43:34", updated_at: "2016-08-03 02:43:34">,
