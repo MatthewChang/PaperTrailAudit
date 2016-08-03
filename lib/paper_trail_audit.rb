@@ -9,17 +9,28 @@ module PaperTrailAudit
 
     def calculate_audit_for(param)
       #Gets all flattened attribute lists
-      objects = [self.attributes,self.versions.map {|e| YAML.load(e.object) if e.object}.compact].flatten
+      #objects are a hash of
+      #{attributes: object attributes, whodunnit: paper_trail whodunnit which caused the object to be in this state}
+      objects = [{attributes: self.attributes, whodunnit: self.paper_trail.originator},
+        self.versions.map {|e| {attributes: YAML.load(e.object), whodunnit: e.originator} if e.object}.compact].flatten
       #rejecting objects with no update time, orders by the updated at times in ascending order
-      objects = objects.select {|e| e["updated_at"]}.sort_by {|e| e["updated_at"]}
+      objects = objects.select {|e| e[:attributes]["updated_at"]}.sort_by {|e| e[:attributes]["updated_at"]}
       result = []
       #Add the initial state if the first element has a value
-      if(objects.count > 0 && !objects.first[param.to_s].nil?)
-        result <<  PaperTrailAudit::Change.new({old_value: nil, new_value: objects.first[param.to_s], time: objects.first["updated_at"]})
+      if(objects.count > 0 && !objects.first[:attributes][param.to_s].nil?)
+        result <<  PaperTrailAudit::Change.new({old_value: nil,
+            new_value: objects.first[:attributes][param.to_s],
+            time: objects.first[:attributes]["updated_at"],
+            whodunnit: objects.first[:whodunnit]
+            })
       end
       objects.each_cons(2) do |a,b|
-        if a[param.to_s] != b[param.to_s]
-          result << PaperTrailAudit::Change.new({old_value: a[param.to_s], new_value: b[param.to_s], time: b["updated_at"]})
+        if a[:attributes][param.to_s] != b[:attributes][param.to_s]
+          result << PaperTrailAudit::Change.new({old_value: a[:attributes][param.to_s],
+            new_value: b[:attributes][param.to_s],
+            time: b[:attributes]["updated_at"],
+            whodunnit: b[:whodunnit]
+          })
         end
       end
       result
