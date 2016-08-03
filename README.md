@@ -8,15 +8,15 @@ This gem is an extension to paper_trail gem https://github.com/airblade/paper_tr
 
 Add this line to your application's `Gemfile`:
 
-    `gem 'paper_trail-audit'`
+    gem 'paper_trail-audit'
 
 And then execute:
 
-    `$ bundle install`
+    $ bundle install
 
 Or install it yourself as:
 
-    `$ gem install paper_trail-audit`
+    $ gem install paper_trail-audit
 
 ## Usage
 Consider a class defined as below
