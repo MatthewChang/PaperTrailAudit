@@ -7,6 +7,10 @@ module PaperTrailAudit
       base.send :extend, ClassMethods
     end
 
+    # Returns the audit list for the specified column
+    #
+    # @param [symbol] param: symbol to query
+    # @return [array of Change objects]
     def calculate_audit_for(param)
       #Gets all flattened attribute lists
       #objects are a hash of
@@ -37,13 +41,32 @@ module PaperTrailAudit
     end
 
     module ClassMethods
+      # Defines the functions which perform the audit generation
+      #
+      # Note: instead of looking at the type and performing a transformation
+      # we could simply reify the versions and make the function calls, however
+      # this causes a pretty significant performance hit, on an object with 100 versions
+      # the reify version was about 4x slower, although with low version counts the
+      # slowdown was much smaller, something like 1.06
+      #
+      # @param [array of params to audit] *params describe *params
       def paper_trail_audit_for(*params)
         params = params.flatten
         params.each do |param|
-          if(self.column_names.include?(param.to_s))
-            #Define a method which returns a list of audit change events
-            define_method param.to_s+"_changes" do
-              self.calculate_audit_for(param)
+          if self.column_names.include?(param.to_s)
+            if self.defined_enums&.include?(param.to_s)
+              #if it's an enum, wrap the values to the enum keys
+              define_method param.to_s+"_changes" do
+                self.calculate_audit_for(param).each do |o|
+                  o.old_value = self.defined_enums[param.to_s].key(o.old_value)
+                  o.new_value = self.defined_enums[param.to_s].key(o.new_value)
+                end
+              end
+            else
+              #Define a method which returns a list of audit change events
+              define_method param.to_s+"_changes" do
+                self.calculate_audit_for(param)
+              end
             end
           else
             reflection = self.reflect_on_all_associations(:belongs_to).select{|e| e.name == param}.first
@@ -55,7 +78,7 @@ module PaperTrailAudit
                 end
               end
             else
-              raise "Property \"#{param}\" does not exist on object #{self}"
+              warn "PaperTrailAudit WARNING: Property \"#{param}\" does not exist on object #{self} - Audit cannot be made"
             end
           end
         end

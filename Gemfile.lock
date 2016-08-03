@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paper_trail-audit (0.0.2)
+    paper_trail-audit (0.0.3)
       paper_trail (~> 5)
       rails (~> 4)
 

@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 RSpec.describe Bank, type: :model do
+  before(:each) do
+    PaperTrail.whodunnit = nil
+  end
   it 'tracks initial state' do
     Bank.create(value: 20)
     expect(Bank.last.value_changes).to eq([PaperTrailAudit::Change.new(old_value: nil, new_value: 20, time: Bank.last.updated_at)])
@@ -68,5 +71,16 @@ RSpec.describe Bank, type: :model do
     @b.update(value: nil)
     expected << PaperTrailAudit::Change.new(old_value: 123, new_value: nil, time: @b.updated_at, whodunnit: "user1")
     expect(@b.value_changes).to eq(expected)
+  end
+
+  it 'tracks enums as their enum values' do
+    expected = []
+    @u = User.create(state: :happy)
+    expected << PaperTrailAudit::Change.new(old_value: nil, new_value: "happy", time: @u.updated_at)
+    @u.update(state: :neutral)
+    expected << PaperTrailAudit::Change.new(old_value: "happy", new_value: "neutral", time: @u.updated_at)
+    @u.update(state: nil)
+    expected << PaperTrailAudit::Change.new(old_value: "neutral", new_value: nil, time: @u.updated_at)
+    expect(@u.state_changes).to eq(expected)
   end
 end
