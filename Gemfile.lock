@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    paper_trail-audit (0.0.1)
+    paper_trail-audit (0.0.2)
       paper_trail (~> 5)
-      rails (~> 4.2, >= 4.2.6)
+      rails (~> 4)
 
 GEM
   remote: https://rubygems.org/

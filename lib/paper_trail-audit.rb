@@ -1,5 +1,5 @@
-require "paper_trail_audit/version"
-require "paper_trail_audit/change"
+require "paper_trail-audit/version"
+require "paper_trail-audit/change"
 
 module PaperTrailAudit
   module Model
@@ -12,7 +12,7 @@ module PaperTrailAudit
       #objects are a hash of
       #{attributes: object attributes, whodunnit: paper_trail whodunnit which caused the object to be in this state}
       objects = [{attributes: self.attributes, whodunnit: self.paper_trail.originator},
-        self.versions.map {|e| {attributes: YAML.load(e.object), whodunnit: e.originator} if e.object}.compact].flatten
+        self.versions.map {|e| {attributes: YAML.load(e.object), whodunnit: e.paper_trail_originator} if e.object}.compact].flatten
       #rejecting objects with no update time, orders by the updated at times in ascending order
       objects = objects.select {|e| e[:attributes]["updated_at"]}.sort_by {|e| e[:attributes]["updated_at"]}
       result = []
@@ -64,6 +64,6 @@ module PaperTrailAudit
   end
 end
 
-ActiveSupport.on_load(:active_record) do
+class ActiveRecord::Base
     include PaperTrailAudit::Model
 end
