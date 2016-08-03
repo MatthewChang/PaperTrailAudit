@@ -5,10 +5,10 @@ require "paper_trail_audit/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "paper_trail_audit"
+  s.name        = "paper_trail-audit"
   s.version     = PaperTrailAudit::VERSION
   s.authors     = ["Matthew Chang"]
-  s.email       = ["matthew@callnine.com"]
+  s.email       = ["mjchang07@gmail.com"]
   s.summary       = "Adds column level auditing to a paper trail tracked model"
   s.license     = "MIT"
 

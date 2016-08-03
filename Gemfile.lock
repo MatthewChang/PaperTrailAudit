@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paper_trail_audit (0.0.1)
+    paper_trail-audit (0.0.1)
       paper_trail
       rails (~> 4.2.6)
 
@@ -136,7 +136,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   paper_trail
-  paper_trail_audit!
+  paper_trail-audit!
   rspec-rails
   sqlite3
   timecop
