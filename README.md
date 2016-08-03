@@ -24,7 +24,7 @@ Consider a class defined as below
 class Bank < ActiveRecord::Base
   belongs_to :user
   has_paper_trail
-  paper_trail_audit_for [:value,:user]
+  paper_trail_audit_for :value, :user
 end
 ```
 

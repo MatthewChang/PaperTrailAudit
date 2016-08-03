@@ -37,7 +37,8 @@ module PaperTrailAudit
     end
 
     module ClassMethods
-      def paper_trail_audit_for(params)
+      def paper_trail_audit_for(*params)
+        params = params.flatten
         params.each do |param|
           if(self.column_names.include?(param.to_s))
             #Define a method which returns a list of audit change events

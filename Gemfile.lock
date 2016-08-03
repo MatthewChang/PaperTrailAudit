@@ -137,8 +137,8 @@ DEPENDENCIES
   byebug
   paper_trail
   paper_trail-audit!
-  rspec-rails
-  sqlite3
+  rspec-rails (~> 3)
+  sqlite3 (~> 1.3)
   timecop
 
 BUNDLED WITH
