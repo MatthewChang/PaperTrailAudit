@@ -51,6 +51,7 @@ module PaperTrailAudit
       #
       # @param [array of params to audit] *params describe *params
       def paper_trail_audit_for(*params)
+        return warn("PaperTrailAudit WARNING: No table exists for #{self}") if self.connection.tables.empty?
         params = params.flatten
         params.each do |param|
           if self.column_names.include?(param.to_s)
