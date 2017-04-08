@@ -62,7 +62,7 @@ module PaperTrailAudit
                 o.new_value = reflection.klass.find(o.new_value) if o.new_value
               end
             end
-            return 
+            next
           end
 
           if self.defined_enums.include?(param.to_s)
