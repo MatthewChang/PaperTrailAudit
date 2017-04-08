@@ -6,5 +6,6 @@ class User < ActiveRecord::Base
   }
 
   has_paper_trail
-  paper_trail_audit_for :state
+  # the column "empty" doesn't exist
+  paper_trail_audit_for :state, :empty
 end

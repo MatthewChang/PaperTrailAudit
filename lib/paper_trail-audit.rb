@@ -51,35 +51,32 @@ module PaperTrailAudit
       #
       # @param [array of params to audit] *params describe *params
       def paper_trail_audit_for(*params)
-        return warn("PaperTrailAudit WARNING: No table exists for #{self}") if self.connection.tables.empty?
+        #return warn("PaperTrailAudit WARNING: No table exists for #{self}") if self.connection.tables.empty?
         params = params.flatten
         params.each do |param|
-          if self.column_names.include?(param.to_s)
-            if self.defined_enums&.include?(param.to_s)
-              #if it's an enum, wrap the values to the enum keys
-              define_method param.to_s+"_changes" do
-                self.calculate_audit_for(param).each do |o|
-                  o.old_value = self.defined_enums[param.to_s].key(o.old_value)
-                  o.new_value = self.defined_enums[param.to_s].key(o.new_value)
-                end
+          reflection = self.reflect_on_all_associations(:belongs_to).select{|e| e.name == param}.first
+          if(reflection)
+            define_method param.to_s+"_changes" do
+              self.calculate_audit_for(reflection.foreign_key).each do |o|
+                o.old_value = reflection.klass.find(o.old_value) if o.old_value
+                o.new_value = reflection.klass.find(o.new_value) if o.new_value
               end
-            else
-              #Define a method which returns a list of audit change events
-              define_method param.to_s+"_changes" do
-                self.calculate_audit_for(param)
+            end
+            return 
+          end
+
+          if self.defined_enums.include?(param.to_s)
+            #if it's an enum, wrap the values to the enum keys
+            define_method param.to_s+"_changes" do
+              self.calculate_audit_for(param).each do |o|
+                o.old_value = self.defined_enums[param.to_s].key(o.old_value)
+                o.new_value = self.defined_enums[param.to_s].key(o.new_value)
               end
             end
           else
-            reflection = self.reflect_on_all_associations(:belongs_to).select{|e| e.name == param}.first
-            if(reflection)
-              define_method param.to_s+"_changes" do
-                self.calculate_audit_for(reflection.foreign_key).each do |o|
-                  o.old_value = reflection.klass.find(o.old_value) if o.old_value
-                  o.new_value = reflection.klass.find(o.new_value) if o.new_value
-                end
-              end
-            else
-              warn "PaperTrailAudit WARNING: Property \"#{param}\" does not exist on object #{self} - Audit cannot be made"
+            #Define a method which returns a list of audit change events
+            define_method param.to_s+"_changes" do
+              self.calculate_audit_for(param)
             end
           end
         end

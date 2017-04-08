@@ -83,4 +83,9 @@ RSpec.describe Bank, type: :model do
     expected << PaperTrailAudit::Change.new(old_value: "neutral", new_value: nil, time: @u.updated_at)
     expect(@u.state_changes).to eq(expected)
   end
+
+  it 'reports empty array on non-existant columns' do
+    @u = User.create(state: :happy)
+    expect(@u.empty_changes()).to eq([])
+  end
 end
