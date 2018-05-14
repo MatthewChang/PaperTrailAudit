@@ -86,5 +86,5 @@ module PaperTrailAudit
 end
 
 class ActiveRecord::Base
-    include PaperTrailAudit::Model
+  include PaperTrailAudit::Model
 end

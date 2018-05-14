@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe Bank, type: :model do
   before(:each) do
-    PaperTrail.whodunnit = nil
+    PaperTrail.request.whodunnit = nil
   end
   it 'tracks initial state' do
     Bank.create(value: 20)
@@ -52,22 +52,22 @@ RSpec.describe Bank, type: :model do
 
   it 'tracks who made each change' do
     expected = []
-    PaperTrail.whodunnit = "user1"
+    PaperTrail.request.whodunnit = "user1"
     @b = Bank.create(value: 100)
     expected << PaperTrailAudit::Change.new(old_value: nil, new_value: 100, time: @b.updated_at, whodunnit: "user1")
-    PaperTrail.whodunnit = "user2"
+    PaperTrail.request.whodunnit = "user2"
     @b.update(value: 10)
     expected << PaperTrailAudit::Change.new(old_value: 100, new_value: 10, time: @b.updated_at, whodunnit: "user2")
-    PaperTrail.whodunnit = "user3"
+    PaperTrail.request.whodunnit = "user3"
     @b.update(user: User.create)
-    PaperTrail.whodunnit = "user3"
+    PaperTrail.request.whodunnit = "user3"
     @b.update(user: User.create)
-    PaperTrail.whodunnit = "user3"
+    PaperTrail.request.whodunnit = "user3"
     @b.update(value: 123)
     expected << PaperTrailAudit::Change.new(old_value: 10, new_value: 123, time: @b.updated_at, whodunnit: "user3")
-    PaperTrail.whodunnit = "user3"
+    PaperTrail.request.whodunnit = "user3"
     @b.update(user: User.create)
-    PaperTrail.whodunnit = "user1"
+    PaperTrail.request.whodunnit = "user1"
     @b.update(value: nil)
     expected << PaperTrailAudit::Change.new(old_value: 123, new_value: nil, time: @b.updated_at, whodunnit: "user1")
     expect(@b.value_changes).to eq(expected)

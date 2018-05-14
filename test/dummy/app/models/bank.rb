@@ -1,6 +1,6 @@
 require 'paper_trail'
 
-class Bank < ActiveRecord::Base
+class Bank < ApplicationRecord
   belongs_to :user
 
   has_paper_trail
