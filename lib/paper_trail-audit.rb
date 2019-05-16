@@ -15,7 +15,12 @@ module PaperTrailAudit
       #Gets all flattened attribute lists
       #objects are a hash of
       #{attributes: object attributes, whodunnit: paper_trail whodunnit which caused the object to be in this state}
-      objects = [{attributes: self.send(is_enum ? :attributes_before_type_cast : :attributes), whodunnit: self.paper_trail.originator},
+      current_attributes = self.attributes
+      if is_enum
+        # In rails 5, enum in attributes get converted to string, get the integer value instead
+        current_attributes[param.to_s] = self.attributes_before_type_cast[param.to_s]
+      end
+      objects = [{attributes: current_attributes, whodunnit: self.paper_trail.originator},
         self.versions.map {|e| {attributes: YAML.load(e.object), whodunnit: e.paper_trail_originator} if e.object}.compact].flatten
       #rejecting objects with no update time, orders by the updated at times in ascending order
       objects = objects.select {|e| e[:attributes]["updated_at"]}.sort_by {|e| e[:attributes]["updated_at"]}
