@@ -11,11 +11,11 @@ module PaperTrailAudit
     #
     # @param [symbol] param: symbol to query
     # @return [array of Change objects]
-    def calculate_audit_for(param)
+    def calculate_audit_for(param, is_enum = false)
       #Gets all flattened attribute lists
       #objects are a hash of
       #{attributes: object attributes, whodunnit: paper_trail whodunnit which caused the object to be in this state}
-      objects = [{attributes: self.attributes, whodunnit: self.paper_trail.originator},
+      objects = [{attributes: self.send(is_enum ? :attributes_before_type_cast : :attributes), whodunnit: self.paper_trail.originator},
         self.versions.map {|e| {attributes: YAML.load(e.object), whodunnit: e.paper_trail_originator} if e.object}.compact].flatten
       #rejecting objects with no update time, orders by the updated at times in ascending order
       objects = objects.select {|e| e[:attributes]["updated_at"]}.sort_by {|e| e[:attributes]["updated_at"]}
@@ -68,7 +68,7 @@ module PaperTrailAudit
           if self.defined_enums.include?(param.to_s)
             #if it's an enum, wrap the values to the enum keys
             define_method param.to_s+"_changes" do
-              self.calculate_audit_for(param).each do |o|
+              self.calculate_audit_for(param, true).each do |o|
                 o.old_value = self.defined_enums[param.to_s].key(o.old_value)
                 o.new_value = self.defined_enums[param.to_s].key(o.new_value)
               end
